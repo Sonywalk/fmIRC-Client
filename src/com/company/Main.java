@@ -3,8 +3,6 @@ package com.company;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.plaf.ScrollBarUI;
-import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.io.IOException;
@@ -22,8 +20,17 @@ public class Main extends JFrame {
     protected Image connectImg;
     protected Image disconnectImg;
     protected DefaultListModel model;
+    protected JTabbedPane tabbedPane;
+    public static int tabCount = 0;
 
     public Main() throws IOException {
+        //Set the active tab background to white
+        UIManager.put("TabbedPane.selected", Color.DARK_GRAY);
+        //Set the inactive tab background to black
+        UIManager.put("TabbedPane.unselectedTabBackground", Color.BLACK);
+        //Remove borders
+        UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
+
         connectImg = ImageIO.read(getClass().getResource("connect.png")).getScaledInstance(22, 22, Image.SCALE_SMOOTH);
         disconnectImg = ImageIO.read(getClass().getResource("disconnect.gif")).getScaledInstance(22, 22, Image.SCALE_SMOOTH);
 
@@ -107,8 +114,8 @@ public class Main extends JFrame {
         scrollableTextArea.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(5, 0, 5, 5), BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         scrollableTextArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollableTextArea.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollableTextArea.getHorizontalScrollBar().setUI(customUI);
-        scrollableTextArea.getVerticalScrollBar().setUI(customUI);
+        scrollableTextArea.getHorizontalScrollBar().setUI(CustomUI.getCustomScrollUI());
+        scrollableTextArea.getVerticalScrollBar().setUI(CustomUI.getCustomScrollUI());
         DefaultCaret caret = (DefaultCaret) mainTextArea.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
@@ -136,14 +143,25 @@ public class Main extends JFrame {
         eastPanel.add(scrollableOnlineList, BorderLayout.CENTER);
 
         JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.add(topPanel, BorderLayout.NORTH);
+        centerPanel.setBackground(Color.BLACK);
         centerPanel.add(scrollableTextArea, BorderLayout.CENTER);
         centerPanel.add(chat, BorderLayout.SOUTH);
+
+        tabbedPane = new JTabbedPane();
+        tabbedPane.setUI(CustomUI.getCustomTabbedUI());
+        tabbedPane.setForeground(Color.WHITE);
+        tabbedPane.setBackground(Color.BLACK);
+        addTab("#fmIRC+", centerPanel, tabbedPane);
+
+        JPanel mainCenterPanel = new JPanel(new BorderLayout());
+        mainCenterPanel.setBackground(Color.BLACK);
+        mainCenterPanel.add(topPanel, BorderLayout.NORTH);
+        mainCenterPanel.add(tabbedPane, BorderLayout.CENTER);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(Color.BLACK);
         mainPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), BorderFactory.createEmptyBorder(10, 10, 10, 10)));
-        mainPanel.add(centerPanel, BorderLayout.CENTER);
+        mainPanel.add(mainCenterPanel, BorderLayout.CENTER);
         mainPanel.add(eastPanel, BorderLayout.EAST);
 
         window = this;
@@ -151,39 +169,12 @@ public class Main extends JFrame {
         pack();
     }
 
-    ScrollBarUI customUI = new BasicScrollBarUI() {
-        @Override
-        protected void configureScrollBarColors() {
-            super.configureScrollBarColors();
-
-            LookAndFeel.installColors(scrollbar, "ScrollBar.background",
-                    "ScrollBar.foreground");
-            thumbHighlightColor = Color.DARK_GRAY;
-            thumbLightShadowColor = Color.DARK_GRAY;
-            thumbDarkShadowColor = Color.DARK_GRAY;
-            thumbColor = Color.BLACK;
-            trackColor = Color.BLACK;
-            trackHighlightColor = Color.BLACK;
-        }
-
-        @Override
-        protected JButton createDecreaseButton(int orientation) {
-            return createZeroButton();
-        }
-
-        @Override
-        protected JButton createIncreaseButton(int orientation) {
-            return createZeroButton();
-        }
-
-        private JButton createZeroButton() {
-            JButton jbutton = new JButton();
-            jbutton.setPreferredSize(new Dimension(0, 0));
-            jbutton.setMinimumSize(new Dimension(0, 0));
-            jbutton.setMaximumSize(new Dimension(0, 0));
-            return jbutton;
-        }
-    };
+    public static void addTab(String title, JPanel panel, JTabbedPane tabbedPane) {
+        tabbedPane.add(title, new JLabel(title));
+        tabbedPane.setTabComponentAt(tabCount, new ButtonTabComponent(tabbedPane));
+        tabbedPane.setComponentAt(tabCount, panel);
+        tabCount++;
+    }
 
     public static void main(String[] args) throws IOException {
         new ChatClient();
