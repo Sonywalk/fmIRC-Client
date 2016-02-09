@@ -1,5 +1,8 @@
 package com.company;
 
+import com.company.UI.Main;
+import com.company.Util.ChatUtils;
+
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
@@ -7,7 +10,6 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.ConnectException;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.List;
@@ -23,7 +25,6 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
     private HashMap<String, Color> onlineNameAndColor;
     private static HashMap<String, PrivateChatWindow> privateChatWindows;
     private Socket socket;
-    private volatile boolean running = true;
     private Stack<String> latestMessages;
     private int counter;
     private String myNickname;
@@ -43,7 +44,6 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
     }
 
     private void disconnect() throws IOException {
-        running = false;
         socket.close();
         chat.setText("");
         mainTextArea.setText("");
@@ -60,26 +60,25 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
             socket = new Socket(tfIp.getText(), Integer.parseInt(tfPort.getText()));
             out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
             in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
-            running = true;
             createReaderThread();
             chat.requestFocus();
             connectBtn.setIcon(new ImageIcon(disconnectImg));
             connectBtn.setToolTipText("Disconnect");
         }
         catch (NumberFormatException e2) {
-            ChatHelper.appendToPane(mainTextArea, "[" + ChatHelper.getTime() + "] *** Wrong port or address! ***", Color.RED, Color.YELLOW);
+            ChatUtils.appendToPane(mainTextArea, "[" + ChatUtils.getTime() + "] *** Wrong port or address! ***", Color.RED, Color.YELLOW);
         }
         catch (UnknownHostException e) {
-            ChatHelper.appendToPane(mainTextArea, "[" + ChatHelper.getTime() + "] *** Host not found! ***", Color.RED, Color.YELLOW);
+            ChatUtils.appendToPane(mainTextArea, "[" + ChatUtils.getTime() + "] *** Host not found! ***", Color.RED, Color.YELLOW);
         }
         catch (ConnectException e3) {
-            ChatHelper.appendToPane(mainTextArea, "[" + ChatHelper.getTime() + "] *** Could not connect to host! ***", Color.RED, Color.YELLOW);
+            ChatUtils.appendToPane(mainTextArea, "[" + ChatUtils.getTime() + "] *** Could not connect to host! ***", Color.RED, Color.YELLOW);
         }
         catch (IllegalArgumentException e4) {
-            ChatHelper.appendToPane(mainTextArea, "[" + ChatHelper.getTime() + "] *** Wrong port or address! ***", Color.RED, Color.YELLOW);
+            ChatUtils.appendToPane(mainTextArea, "[" + ChatUtils.getTime() + "] *** Wrong port or address! ***", Color.RED, Color.YELLOW);
         }
         catch (IOException e1) {
-            disconnect();
+            e1.printStackTrace();
         }
     }
 
@@ -87,26 +86,20 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
         Thread read = new Thread(new Runnable() {
             public void run() {
                 String line;
-                while(running) {
-                    try {
-                        line = in.readLine();
+                try {
+                    while((line = in.readLine()) != null) {
                         handleInput(line);
                     }
-                    catch (SocketException e1) {
-                        //When disconnecting read might be called, this exception will occur then, ignore it
+                    disconnect();
+                } catch (IOException e) {
+                    try {
+                        disconnect();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
                     }
-                    catch (Exception e) { //Remote server probably closed socket
-                        e.printStackTrace();
-                        try {
-                            running = false;
-                            socket.close();
-                            ChatHelper.appendToPane(mainTextArea, "[" + ChatHelper.getTime() + "] *** You have been disconnected! ***", Color.RED, Color.YELLOW);
-                        } catch (BadLocationException e1) {
-                            e1.printStackTrace();
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
-                        }
-                    }
+                    e.printStackTrace();
+                } catch (BadLocationException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -124,22 +117,22 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
     }
 
     private void handleInput(String str) throws BadLocationException, IOException {
-        String time = "[" + ChatHelper.getTime() + "]";
+        String time = "[" + ChatUtils.getTime() + "]";
         if (str.equals("NICK?")) {
             write("NICK " + nick.getText());
         }
         else if (str.equals("NICK OK")) {
-            ChatHelper.appendToPane(mainTextArea, "Welcome to fmIRC+!", Color.RED, Color.DARK_GRAY);
+            ChatUtils.appendToPane(mainTextArea, "Welcome to fmIRC+!", Color.RED, Color.DARK_GRAY);
             window.setTitle("fmIRC+ - " + nick.getText());
             myNickname = nick.getText();
         }
         else if (str.equals("NICK TAKEN")) {
-            ChatHelper.appendToPane(mainTextArea, "Nickname already in use, please pick another one!", Color.RED, Color.BLUE);
+            ChatUtils.appendToPane(mainTextArea, "Nickname already in use, please pick another one!", Color.RED, Color.BLUE);
         }
         else if (str.startsWith("JOINED")) {
             String name = str.replace("JOINED", "").trim();
-            onlineNameAndColor.put(name, ChatHelper.getRandomColor());
-            ChatHelper.appendToPane(mainTextArea, time + " " + name + " has just joined the chat!", Color.MAGENTA, Color.CYAN);
+            onlineNameAndColor.put(name, ChatUtils.getRandomColor());
+            ChatUtils.appendToPane(mainTextArea, time + " " + name + " has just joined the chat!", Color.MAGENTA, Color.CYAN);
             createPopupAsync(name + " just logged in!", "");
             updateOnlineList();
         }
@@ -147,7 +140,7 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
             int index = str.indexOf(":");
             String message = str.substring(index + 1, str.length());
             String name = str.substring(0, index).replace("MESSAGE", "").trim();
-            ChatHelper.appendToPane(mainTextArea, time + " <" + name + ">: " + message, onlineNameAndColor.get(name), null);
+            ChatUtils.appendToPane(mainTextArea, time + " <" + name + ">: " + message, onlineNameAndColor.get(name), null);
             createPopupAsync("New Message", message);
         }
         else if (str.startsWith("PRIVMSG")) {
@@ -160,7 +153,7 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
             String name = str.replace("QUIT", "").trim();
             onlineNameAndColor.remove(name);
             updateOnlineList();
-            ChatHelper.appendToPane(mainTextArea, time + " " + name + " has left the chat!", Color.GREEN, Color.DARK_GRAY);
+            ChatUtils.appendToPane(mainTextArea, time + " " + name + " has left the chat!", Color.GREEN, Color.DARK_GRAY);
         }
     }
 
@@ -179,12 +172,12 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
             }
         }
         if (found) {
-            privateChatWindows.get(from).appendToPane("[" + ChatHelper.getTime() + "]" + " <" + from + ">: " + message, from);
+            privateChatWindows.get(from).appendToPane("[" + ChatUtils.getTime() + "]" + " <" + from + ">: " + message, from);
         }
         else {
             PrivateChatWindow pcw = new PrivateChatWindow(this, from);
             privateChatWindows.put(from, pcw);
-            pcw.appendToPane("[" + ChatHelper.getTime() + "]" + " <" + from + ">: " + message, from);
+            pcw.appendToPane("[" + ChatUtils.getTime() + "]" + " <" + from + ">: " + message, from);
         }
     }
 
@@ -200,12 +193,12 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
             }
         }
         if (found) {
-            privateChatWindows.get(to).appendToPane("[" + ChatHelper.getTime() + "]" + " <" + myNickname + ">: " + message, myNickname);
+            privateChatWindows.get(to).appendToPane("[" + ChatUtils.getTime() + "]" + " <" + myNickname + ">: " + message, myNickname);
         }
         else {
             PrivateChatWindow pcw = new PrivateChatWindow(this, to);
             privateChatWindows.put(to, pcw);
-            pcw.appendToPane("[" + ChatHelper.getTime() + "]" + " <" + myNickname + ">: " + message, myNickname);
+            pcw.appendToPane("[" + ChatUtils.getTime() + "]" + " <" + myNickname + ">: " + message, myNickname);
         }
     }
 
@@ -228,7 +221,7 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
         }
         else {
             System.out.println(System.nanoTime() + " FUCKED UP CLIENT");
-            ChatHelper.appendToPane(mainTextArea, "[" + ChatHelper.getTime() + "] *** You are disconnected! ***", Color.RED, Color.YELLOW);
+            ChatUtils.appendToPane(mainTextArea, "[" + ChatUtils.getTime() + "] *** You are disconnected! ***", Color.RED, Color.YELLOW);
             chat.setText("");
         }
     }

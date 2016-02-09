@@ -1,4 +1,4 @@
-package com.company;
+package com.company.UI;
 
 import javax.swing.*;
 import javax.swing.plaf.ScrollBarUI;

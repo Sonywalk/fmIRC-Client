@@ -1,5 +1,10 @@
 package com.company;
 
+import com.company.UI.CustomUI;
+import com.company.UI.Main;
+import com.company.Util.ChatUtils;
+import com.company.Util.WrapEditorKit;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.text.BadLocationException;
@@ -23,8 +28,8 @@ public class PrivateChatWindow implements Runnable, KeyListener {
 
     public PrivateChatWindow(ChatClient client, String nickname) throws IOException {
         SwingUtilities.invokeLater(this);
-        myColor = ChatHelper.getRandomColor();
-        buddyColor = ChatHelper.getRandomColor();
+        myColor = ChatUtils.getRandomColor();
+        buddyColor = ChatUtils.getRandomColor();
         this.nickname = nickname;
         this.client = client;
     }
@@ -71,7 +76,7 @@ public class PrivateChatWindow implements Runnable, KeyListener {
         else {
             foreground = myColor;
         }
-        ChatHelper.appendToPane(textPane, msg, foreground, null); //TODO: This will be null when tab opens by incoming priv msg, need to wait for invokeLater to finish so we know that pane is good to go
+        ChatUtils.appendToPane(textPane, msg, foreground, null); //TODO: This will be null when tab opens by incoming priv msg, need to wait for invokeLater to finish so we know that pane is good to go
     }
 
     @Override

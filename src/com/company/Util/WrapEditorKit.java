@@ -1,4 +1,4 @@
-package com.company;
+package com.company.Util;
 
 import javax.swing.text.*;
 

@@ -1,4 +1,7 @@
-package com.company;
+package com.company.UI;
+
+import com.company.ChatClient;
+import com.company.Util.WrapEditorKit;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -20,7 +23,7 @@ public class Main extends JFrame {
     protected Image connectImg;
     protected Image disconnectImg;
     protected DefaultListModel model;
-    protected JTabbedPane tabbedPane;
+    public JTabbedPane tabbedPane;
     public static int tabCount = 0;
 
     public Main() throws IOException {
@@ -31,8 +34,8 @@ public class Main extends JFrame {
         //Remove borders
         UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
 
-        connectImg = ImageIO.read(getClass().getResource("connect.png")).getScaledInstance(22, 22, Image.SCALE_SMOOTH);
-        disconnectImg = ImageIO.read(getClass().getResource("disconnect.gif")).getScaledInstance(22, 22, Image.SCALE_SMOOTH);
+        connectImg = ImageIO.read(getClass().getResource("resources/connect.png")).getScaledInstance(22, 22, Image.SCALE_SMOOTH);
+        disconnectImg = ImageIO.read(getClass().getResource("resources/disconnect.gif")).getScaledInstance(22, 22, Image.SCALE_SMOOTH);
 
         Border blackBorder = BorderFactory.createLineBorder(Color.BLACK);
         Font font = new Font("Arial", Font.BOLD, 12);

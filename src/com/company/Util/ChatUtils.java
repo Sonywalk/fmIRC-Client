@@ -1,4 +1,4 @@
-package com.company;
+package com.company.Util;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
@@ -14,7 +14,7 @@ import java.util.Random;
 /**
  * Created by LanfeaR on 2016-02-08.
  */
-public class ChatHelper {
+public class ChatUtils {
 
 
     public static String getTime() {

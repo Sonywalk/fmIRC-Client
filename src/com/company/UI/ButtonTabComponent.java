@@ -1,8 +1,10 @@
-package com.company;
+package com.company.UI;
 
 /**
  * Created by LanfeaR on 2016-02-08.
  */
+
+import com.company.ChatClient;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
