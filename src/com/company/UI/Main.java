@@ -8,7 +8,6 @@ import javax.swing.border.Border;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 public class Main extends JFrame {
 
@@ -26,14 +25,12 @@ public class Main extends JFrame {
     public JTabbedPane tabbedPane;
     public static int tabCount = 0;
 
-    public Main() throws IOException, InvocationTargetException, InterruptedException {
-        SwingUtilities.invokeAndWait(() -> {
-            try {
-                createAndShowGUI();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+    public Main() throws IOException {
+        createAndShowGUI();
+    }
+
+    public static void main(String[] args) throws IOException {
+        new ChatClient();
     }
 
     private void createAndShowGUI() throws IOException {
@@ -44,8 +41,8 @@ public class Main extends JFrame {
         //Remove borders
         UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
 
-        connectImg = ImageIO.read(getClass().getResource("resources/connect.png")).getScaledInstance(22, 22, Image.SCALE_SMOOTH);
-        disconnectImg = ImageIO.read(getClass().getResource("resources/disconnect.gif")).getScaledInstance(22, 22, Image.SCALE_SMOOTH);
+        connectImg = ImageIO.read(getClass().getResource("/com/company/resources/connect.png")).getScaledInstance(22, 22, Image.SCALE_SMOOTH);
+        disconnectImg = ImageIO.read(getClass().getResource("/com/company/resources/disconnect.gif")).getScaledInstance(22, 22, Image.SCALE_SMOOTH);
 
         Border blackBorder = BorderFactory.createLineBorder(Color.BLACK);
         Font font = new Font("Arial", Font.BOLD, 12);
@@ -189,8 +186,5 @@ public class Main extends JFrame {
         tabbedPane.setComponentAt(tabCount, panel);
         tabCount++;
     }
-
-    public static void main(String[] args) throws IOException, InvocationTargetException, InterruptedException {
-        new ChatClient();
-    }
 }
+
