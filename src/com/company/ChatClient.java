@@ -8,6 +8,7 @@ import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -29,7 +30,7 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
     private int counter;
     private String myNickname;
 
-    public ChatClient() throws IOException {
+    public ChatClient() throws IOException, InvocationTargetException, InterruptedException {
         counter = 0;
         latestMessages = new Stack<String>();
         privateChatWindows = new HashMap<>();

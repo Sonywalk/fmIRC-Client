@@ -64,14 +64,14 @@ public class InputHelper {
         String[] fromAndTo = input.substring(0, index-1).replace("PRIVMSG", "").split("@");
         String from = fromAndTo[0].trim();
         String to = fromAndTo[1].trim();
+        String output = "[" + ChatUtils.getTime() + "]" + " <" + from + ">: " + message;
 
         if (client.messageTabExists(from)) {
-            client.getPrivateChatWindow(from).appendToPane("[" + ChatUtils.getTime() + "]" + " <" + from + ">: " + message, from);
+            client.getPrivateChatWindow(from).appendToPane(output, from);
         }
         else {
-            PrivateChatWindow pcw = new PrivateChatWindow(client, from);
+            PrivateChatWindow pcw = new PrivateChatWindow(client, from, output, from);
             client.putPrivateChatWindow(from, pcw);
-            pcw.appendToPane("[" + ChatUtils.getTime() + "]" + " <" + from + ">: " + message, from);
         }
     }
 
@@ -79,15 +79,14 @@ public class InputHelper {
         int index = input.indexOf(":");
         String message = input.substring(index + 1, input.length());
         String to = input.substring(0, index).replace("RESPONSEPRIVMSG", "").trim();
+        String output = "[" + ChatUtils.getTime() + "]" + " <" + client.getNickname() + ">: " + message;
 
         if (client.messageTabExists(to)) {
-            client.getPrivateChatWindow(to).appendToPane("[" + ChatUtils.getTime() + "]" +
-                    " <" + client.getNickname() + ">: " + message, client.getNickname());
+            client.getPrivateChatWindow(to).appendToPane(output, client.getNickname());
         }
         else {
-            PrivateChatWindow pcw = new PrivateChatWindow(client, to);
+            PrivateChatWindow pcw = new PrivateChatWindow(client, to, output, client.getNickname());
             client.putPrivateChatWindow(to, pcw);
-            pcw.appendToPane("[" + ChatUtils.getTime() + "]" + " <" + client.getNickname() + ">: " + message, client.getNickname());
         }
     }
 }

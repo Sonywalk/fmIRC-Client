@@ -8,6 +8,7 @@ import javax.swing.border.Border;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 public class Main extends JFrame {
 
@@ -25,7 +26,17 @@ public class Main extends JFrame {
     public JTabbedPane tabbedPane;
     public static int tabCount = 0;
 
-    public Main() throws IOException {
+    public Main() throws IOException, InvocationTargetException, InterruptedException {
+        SwingUtilities.invokeAndWait(() -> {
+            try {
+                createAndShowGUI();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void createAndShowGUI() throws IOException {
         //Set the active tab background to white
         UIManager.put("TabbedPane.selected", Color.DARK_GRAY);
         //Set the inactive tab background to black
@@ -168,6 +179,7 @@ public class Main extends JFrame {
 
         window = this;
         add(mainPanel);
+        setVisible(true);
         pack();
     }
 
@@ -178,7 +190,7 @@ public class Main extends JFrame {
         tabCount++;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InvocationTargetException, InterruptedException {
         new ChatClient();
     }
 }

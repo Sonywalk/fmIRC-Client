@@ -25,6 +25,8 @@ public class PrivateChatWindow implements Runnable, KeyListener {
     private String nickname;
     private Color myColor;
     private Color buddyColor;
+    private String waitingMsg = null;
+    private String writer;
 
     public PrivateChatWindow(ChatClient client, String nickname) throws IOException {
         SwingUtilities.invokeLater(this);
@@ -32,6 +34,15 @@ public class PrivateChatWindow implements Runnable, KeyListener {
         buddyColor = ChatUtils.getRandomColor();
         this.nickname = nickname;
         this.client = client;
+    }
+    public PrivateChatWindow(ChatClient client, String nickname, String msg, String writer) throws IOException, BadLocationException {
+        this.writer = writer;
+        this.waitingMsg = msg;
+        myColor = ChatUtils.getRandomColor();
+        buddyColor = ChatUtils.getRandomColor();
+        this.nickname = nickname;
+        this.client = client;
+        SwingUtilities.invokeLater(this);
     }
 
     private void createPrivateChatWindow() {
@@ -76,12 +87,21 @@ public class PrivateChatWindow implements Runnable, KeyListener {
         else {
             foreground = myColor;
         }
-        ChatUtils.appendToPane(textPane, msg, foreground, null); //TODO: This will be null when tab opens by incoming priv msg, need to wait for invokeLater to finish so we know that pane is good to go
+        ChatUtils.appendToPane(textPane, msg, foreground, null);
     }
 
     @Override
     public void run() {
-        createPrivateChatWindow();
+        synchronized (this) {
+            createPrivateChatWindow();
+            if (waitingMsg != null) {
+                try {
+                    appendToPane(waitingMsg, writer);
+                } catch (BadLocationException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
