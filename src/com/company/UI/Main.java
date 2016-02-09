@@ -2,7 +2,6 @@ package com.company.UI;
 
 import com.company.ChatClient;
 import com.company.Util.WrapEditorKit;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -16,7 +15,7 @@ public class Main extends JFrame {
     protected JButton connectBtn;
     protected JTextField tfPort;
     protected JTextField tfIp;
-    protected JTextField nick;
+    public JTextField nick;
     protected JTextField chat;
     protected JList onlineList;
     protected JFrame window;
@@ -42,7 +41,7 @@ public class Main extends JFrame {
         Font consoleFont = new Font("Consolas", Font.BOLD, 12);
 
         setIconImage(connectImg);
-        setTitle("Linkura Chat Client");
+        setTitle("fmIRC+");
         setMinimumSize(new Dimension(950, 650));
         setVisible(true);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

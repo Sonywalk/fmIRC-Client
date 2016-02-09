@@ -83,126 +83,65 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
     }
 
     private void createReaderThread () {
-        Thread read = new Thread(new Runnable() {
-            public void run() {
-                String line;
-                try {
-                    while((line = in.readLine()) != null) {
-                        handleInput(line);
-                    }
-                    disconnect();
-                } catch (IOException e) {
-                    try {
-                        disconnect();
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
-                    e.printStackTrace();
-                } catch (BadLocationException e) {
-                    e.printStackTrace();
+        InputHelper helper = new InputHelper(this);
+        Thread read = new Thread(() -> {
+            String line;
+            try {
+                while((line = in.readLine()) != null) {
+                    helper.processInput(line);
                 }
+                disconnect();
+            } catch (IOException e) {
+                try {
+                    disconnect();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                e.printStackTrace();
+            } catch (BadLocationException e) {
+                e.printStackTrace();
             }
         });
         read.start();
     }
 
-    private void createPopupAsync(final String header, final String paragraph) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                if (!window.isActive()) {
-                    Notification.getInstance(connectImg, header, paragraph).execute();
-                }
+    public void createPopupAsync(final String header, final String paragraph) {
+        SwingUtilities.invokeLater(() -> {
+            if (!window.isActive()) {
+                Notification.getInstance(connectImg, header, paragraph).execute();
             }
         });
     }
 
-    private void handleInput(String str) throws BadLocationException, IOException {
-        String time = "[" + ChatUtils.getTime() + "]";
-        if (str.equals("NICK?")) {
-            write("NICK " + nick.getText());
-        }
-        else if (str.equals("NICK OK")) {
-            ChatUtils.appendToPane(mainTextArea, "Welcome to fmIRC+!", Color.RED, Color.DARK_GRAY);
-            window.setTitle("fmIRC+ - " + nick.getText());
-            myNickname = nick.getText();
-        }
-        else if (str.equals("NICK TAKEN")) {
-            ChatUtils.appendToPane(mainTextArea, "Nickname already in use, please pick another one!", Color.RED, Color.BLUE);
-        }
-        else if (str.startsWith("JOINED")) {
-            String name = str.replace("JOINED", "").trim();
-            onlineNameAndColor.put(name, ChatUtils.getRandomColor());
-            ChatUtils.appendToPane(mainTextArea, time + " " + name + " has just joined the chat!", Color.MAGENTA, Color.CYAN);
-            createPopupAsync(name + " just logged in!", "");
-            updateOnlineList();
-        }
-        else if (str.startsWith("MESSAGE")) {
-            int index = str.indexOf(":");
-            String message = str.substring(index + 1, str.length());
-            String name = str.substring(0, index).replace("MESSAGE", "").trim();
-            ChatUtils.appendToPane(mainTextArea, time + " <" + name + ">: " + message, onlineNameAndColor.get(name), null);
-            createPopupAsync("New Message", message);
-        }
-        else if (str.startsWith("PRIVMSG")) {
-            handlePrivateIncomingMessage(str);
-        }
-        else if (str.startsWith("RESPONSEPRIVMSG")) {
-            handlePrivateIncomingMessageResponse(str);
-        }
-        else if (str.startsWith("QUIT")) {
-            String name = str.replace("QUIT", "").trim();
-            onlineNameAndColor.remove(name);
-            updateOnlineList();
-            ChatUtils.appendToPane(mainTextArea, time + " " + name + " has left the chat!", Color.GREEN, Color.DARK_GRAY);
-        }
+    public void setWindowTitle(String title) {
+        window.setTitle(title);
+    }
+    public String getNickname() {
+        return this.myNickname;
+    }
+    public void setNickname(String nickname) {
+        this.myNickname = nickname;
+    }
+    public JTextPane getMainTextPane() {
+        return mainTextArea;
+    }
+    public void putOnlineNameAndColor(String key) {
+        onlineNameAndColor.put(key, ChatUtils.getRandomColor());
+    }
+    public Color getColorByName(String key) {
+        return onlineNameAndColor.get(key);
+    }
+    public void removeOnlineNameAndColor(String key) {
+        onlineNameAndColor.remove(key);
+    }
+    public PrivateChatWindow getPrivateChatWindow(String key) {
+        return privateChatWindows.get(key);
+    }
+    public void putPrivateChatWindow(String key, PrivateChatWindow value) {
+        privateChatWindows.put(key, value);
     }
 
-    //"PRIVMSG from@to :message
-    private void handlePrivateIncomingMessage(String input) throws BadLocationException, IOException {
-        boolean found = false;
-        int index = input.indexOf(":");
-        String message = input.substring(index + 1, input.length());
-        String[] fromAndTo = input.substring(0, index-1).replace("PRIVMSG", "").split("@");
-        String from = fromAndTo[0].trim();
-        String to = fromAndTo[1].trim();
-
-        for (String key : privateChatWindows.keySet()) {
-            if (key.equals(from)) {
-                found = true;
-            }
-        }
-        if (found) {
-            privateChatWindows.get(from).appendToPane("[" + ChatUtils.getTime() + "]" + " <" + from + ">: " + message, from);
-        }
-        else {
-            PrivateChatWindow pcw = new PrivateChatWindow(this, from);
-            privateChatWindows.put(from, pcw);
-            pcw.appendToPane("[" + ChatUtils.getTime() + "]" + " <" + from + ">: " + message, from);
-        }
-    }
-
-    private void handlePrivateIncomingMessageResponse(String input) throws BadLocationException, IOException {
-        boolean found = false;
-        int index = input.indexOf(":");
-        String message = input.substring(index + 1, input.length());
-        String to = input.substring(0, index).replace("RESPONSEPRIVMSG", "").trim();
-
-        for (String key : privateChatWindows.keySet()) {
-            if (key.equals(to)) {
-                found = true;
-            }
-        }
-        if (found) {
-            privateChatWindows.get(to).appendToPane("[" + ChatUtils.getTime() + "]" + " <" + myNickname + ">: " + message, myNickname);
-        }
-        else {
-            PrivateChatWindow pcw = new PrivateChatWindow(this, to);
-            privateChatWindows.put(to, pcw);
-            pcw.appendToPane("[" + ChatUtils.getTime() + "]" + " <" + myNickname + ">: " + message, myNickname);
-        }
-    }
-
-    private void updateOnlineList() {
+    public void updateOnlineList() {
         model.clear();
         List<String> sortedKeys = new ArrayList(onlineNameAndColor.keySet());
         Collections.sort(sortedKeys);
@@ -212,18 +151,10 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
     }
 
     public void write(String msg) throws BadLocationException, IOException {
-        if (out != null) {
-            socket.setSoTimeout(5000);
-            out.write(msg + "\r\n");
-            out.flush();
-            chat.setText("");
-            socket.setSoTimeout(0);
-        }
-        else {
-            System.out.println(System.nanoTime() + " FUCKED UP CLIENT");
-            ChatUtils.appendToPane(mainTextArea, "[" + ChatUtils.getTime() + "] *** You are disconnected! ***", Color.RED, Color.YELLOW);
-            chat.setText("");
-        }
+        socket.setSoTimeout(5000);
+        out.write(msg + "\r\n");
+        out.flush();
+        socket.setSoTimeout(0);
     }
 
     private void handleMessageHistory(int num) {
@@ -239,18 +170,24 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
     }
 
     private void handlePrivateMessageTab() throws IOException {
-        boolean found = false;
         String nickname = (String) onlineList.getSelectedValue();
-        for (String key : privateChatWindows.keySet()) {
-            if (key.equals(nickname)) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
+        if (!messageTabExists(nickname)) {
             PrivateChatWindow pcw = new PrivateChatWindow(this, nickname);
             privateChatWindows.put(nickname, pcw);
         }
+    }
+
+    public boolean messageTabExists(String tabName) {
+        for (String key : privateChatWindows.keySet()) {
+            if (key.equals(tabName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void removeTab(String tabValue) {
+        privateChatWindows.remove(tabValue.substring(1, tabValue.length()));
     }
 
     @Override
@@ -292,6 +229,7 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
                 latestMessages.push(chat.getText());
                 counter = 0;
                 write(chat.getText());
+                chat.setText("");
             } catch (BadLocationException e1) {
                 e1.printStackTrace();
             } catch (IOException e1) {
@@ -346,9 +284,5 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
     @Override
     public void mouseExited(MouseEvent e) {
 
-    }
-
-    public static void removeTab(String tabValue) {
-        privateChatWindows.remove(tabValue.replace("#", ""));
     }
 }
