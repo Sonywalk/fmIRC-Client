@@ -1,7 +1,6 @@
 package com.company;
 
 import com.company.Util.ChatUtils;
-
 import javax.swing.text.BadLocationException;
 import java.awt.*;
 import java.io.IOException;
@@ -27,6 +26,7 @@ public class InputHelper {
             client.setWindowTitle("fmIRC+ - " + client.getNickname());
         }
         else if (input.equals("NICK TAKEN")) {
+            client.disconnect();
             ChatUtils.appendToPane(client.getMainTextPane(), "Nickname already in use, please pick another one!", Color.RED, Color.BLUE);
         }
         else if (input.startsWith("JOINED")) {
@@ -70,8 +70,9 @@ public class InputHelper {
             client.getPrivateChatWindow(from).appendToPane(output, from);
         }
         else {
-            PrivateChatWindow pcw = new PrivateChatWindow(client, from, output, from);
+            PrivateChatWindow pcw = new PrivateChatWindow(client, from);
             client.putPrivateChatWindow(from, pcw);
+            pcw.appendToPane(output, from);
         }
     }
 
@@ -85,8 +86,9 @@ public class InputHelper {
             client.getPrivateChatWindow(to).appendToPane(output, client.getNickname());
         }
         else {
-            PrivateChatWindow pcw = new PrivateChatWindow(client, to, output, client.getNickname());
+            PrivateChatWindow pcw = new PrivateChatWindow(client, to);
             client.putPrivateChatWindow(to, pcw);
+            pcw.appendToPane(output, to);
         }
     }
 }

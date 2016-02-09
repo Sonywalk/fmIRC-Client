@@ -1,5 +1,7 @@
 package com.company.Util;
 
+import com.company.UI.ButtonTabComponent;
+
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
@@ -16,6 +18,7 @@ import java.util.Random;
  */
 public class ChatUtils {
 
+    public static int tabCount = 0;
 
     public static String getTime() {
         Date date = Calendar.getInstance().getTime();
@@ -39,12 +42,20 @@ public class ChatUtils {
         if (backgroundColor == null) {
             backgroundColor = new Color(0, 0, 0, 1); //Transparent
         }
-
         StyledDocument doc = tp.getStyledDocument();
         SimpleAttributeSet sas = new SimpleAttributeSet();
         StyleConstants.setForeground(sas, foregroundColor);
         StyleConstants.setBackground(sas, backgroundColor);
         doc.insertString(doc.getLength(), msg + "\n", sas);
+    }
+
+    public static void addTab(String title, JPanel panel, JTabbedPane tabbedPane) {
+        SwingUtilities.invokeLater(() -> {
+            tabbedPane.add(title, new JLabel(title));
+            tabbedPane.setTabComponentAt(tabCount, new ButtonTabComponent(tabbedPane));
+            tabbedPane.setComponentAt(tabCount, panel);
+            tabCount++;
+        });
     }
 
 }

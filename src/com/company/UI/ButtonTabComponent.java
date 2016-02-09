@@ -5,6 +5,7 @@ package com.company.UI;
  */
 
 import com.company.ChatClient;
+import com.company.Util.ChatUtils;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
@@ -76,7 +77,7 @@ public class ButtonTabComponent extends JPanel {
             String value = pane.getTitleAt(i);
             if (i != -1) {
                 pane.remove(i);
-                Main.tabCount--;
+                ChatUtils.tabCount--;
                 ChatClient.removeTab(value);
             }
         }

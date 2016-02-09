@@ -8,9 +8,7 @@ import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.net.ConnectException;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.*;
 import java.util.List;
 
@@ -31,7 +29,7 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
 
     public ChatClient() throws IOException {
         counter = 0;
-        latestMessages = new Stack<String>();
+        latestMessages = new Stack<>();
         privateChatWindows = new HashMap<>();
         latestMessages.push("");
         onlineNameAndColor = new HashMap<>();
@@ -43,7 +41,7 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
         onlineList.addMouseListener(this);
     }
 
-    private void disconnect() throws IOException {
+    public void disconnect() throws IOException {
         socket.close();
         chat.setText("");
         mainTextArea.setText("");
@@ -57,13 +55,18 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
 
     private void connect() throws BadLocationException, IOException {
         try {
-            socket = new Socket(tfIp.getText(), Integer.parseInt(tfPort.getText()));
+            socket = new Socket();
+            socket.connect(new InetSocketAddress(tfIp.getText(), Integer.parseInt(tfPort.getText())), 2000);
             out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
             in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
             createReaderThread();
             chat.requestFocus();
             connectBtn.setIcon(new ImageIcon(disconnectImg));
             connectBtn.setToolTipText("Disconnect");
+        }
+        catch (SocketTimeoutException e5) {
+            disconnect();
+            ChatUtils.appendToPane(mainTextArea, "[" + ChatUtils.getTime() + "] *** Socket Timeout! ***", Color.RED, Color.YELLOW);
         }
         catch (NumberFormatException e2) {
             ChatUtils.appendToPane(mainTextArea, "[" + ChatUtils.getTime() + "] *** Wrong port or address! ***", Color.RED, Color.YELLOW);
@@ -92,11 +95,6 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
                 }
                 disconnect();
             } catch (IOException e) {
-                try {
-                    disconnect();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
                 e.printStackTrace();
             } catch (BadLocationException e) {
                 e.printStackTrace();

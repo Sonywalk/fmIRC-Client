@@ -25,8 +25,6 @@ public class PrivateChatWindow implements Runnable, KeyListener {
     private String nickname;
     private Color myColor;
     private Color buddyColor;
-    private String waitingMsg = null;
-    private String writer;
 
     public PrivateChatWindow(ChatClient client, String nickname) throws IOException {
         SwingUtilities.invokeLater(this);
@@ -34,15 +32,6 @@ public class PrivateChatWindow implements Runnable, KeyListener {
         buddyColor = ChatUtils.getRandomColor();
         this.nickname = nickname;
         this.client = client;
-    }
-    public PrivateChatWindow(ChatClient client, String nickname, String msg, String writer) throws IOException, BadLocationException {
-        this.writer = writer;
-        this.waitingMsg = msg;
-        myColor = ChatUtils.getRandomColor();
-        buddyColor = ChatUtils.getRandomColor();
-        this.nickname = nickname;
-        this.client = client;
-        SwingUtilities.invokeLater(this);
     }
 
     private void createPrivateChatWindow() {
@@ -76,7 +65,7 @@ public class PrivateChatWindow implements Runnable, KeyListener {
         panel.add(scrollableTextArea, BorderLayout.CENTER);
         panel.add(privateChat, BorderLayout.SOUTH);
 
-        Main.addTab("#" + nickname, panel, client.tabbedPane);
+        ChatUtils.addTab("#" + nickname, panel, client.tabbedPane);
     }
 
     public void appendToPane(String msg, String writer) throws BadLocationException {
@@ -87,21 +76,19 @@ public class PrivateChatWindow implements Runnable, KeyListener {
         else {
             foreground = myColor;
         }
-        ChatUtils.appendToPane(textPane, msg, foreground, null);
+        SwingUtilities.invokeLater(() -> {
+            try {
+                ChatUtils.appendToPane(textPane, msg, foreground, null);
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+            }
+        });
+
     }
 
     @Override
     public void run() {
-        synchronized (this) {
-            createPrivateChatWindow();
-            if (waitingMsg != null) {
-                try {
-                    appendToPane(waitingMsg, writer);
-                } catch (BadLocationException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        createPrivateChatWindow();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.company.UI;
 
 import com.company.ChatClient;
+import com.company.Util.ChatUtils;
 import com.company.Util.WrapEditorKit;
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -23,7 +24,6 @@ public class Main extends JFrame {
     protected Image disconnectImg;
     protected DefaultListModel model;
     public JTabbedPane tabbedPane;
-    public static int tabCount = 0;
 
     public Main() throws IOException {
         createAndShowGUI();
@@ -161,7 +161,7 @@ public class Main extends JFrame {
         tabbedPane.setUI(CustomUI.getCustomTabbedUI());
         tabbedPane.setForeground(Color.WHITE);
         tabbedPane.setBackground(Color.BLACK);
-        addTab("#fmIRC+", centerPanel, tabbedPane);
+        ChatUtils.addTab("#fmIRC+", centerPanel, tabbedPane);
 
         JPanel mainCenterPanel = new JPanel(new BorderLayout());
         mainCenterPanel.setBackground(Color.BLACK);
@@ -178,13 +178,6 @@ public class Main extends JFrame {
         add(mainPanel);
         setVisible(true);
         pack();
-    }
-
-    public static void addTab(String title, JPanel panel, JTabbedPane tabbedPane) {
-        tabbedPane.add(title, new JLabel(title));
-        tabbedPane.setTabComponentAt(tabCount, new ButtonTabComponent(tabbedPane));
-        tabbedPane.setComponentAt(tabCount, panel);
-        tabCount++;
     }
 }
 
