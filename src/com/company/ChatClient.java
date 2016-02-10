@@ -2,7 +2,6 @@ package com.company;
 
 import com.company.UI.Main;
 import com.company.Util.ChatUtils;
-
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
@@ -149,15 +148,16 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
     }
 
     public void write(String msg) throws BadLocationException, IOException {
-        socket.setSoTimeout(5000);
-        out.write(msg + "\r\n");
-        out.flush();
-        socket.setSoTimeout(0);
+        if (socket != null) {
+            socket.setSoTimeout(5000);
+            out.write(msg + "\r\n");
+            out.flush();
+            socket.setSoTimeout(0);
+        }
     }
 
     private void handleMessageHistory(int num) {
         counter += num;
-
         if (counter >= latestMessages.size()) {
             counter = 0;
         }
@@ -211,14 +211,9 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
-
-    }
-
+    public void keyTyped(KeyEvent e) {}
     @Override
-    public void keyPressed(KeyEvent e) {
-
-    }
+    public void keyPressed(KeyEvent e) {}
 
     @Override
     public void keyReleased(KeyEvent e) {
@@ -252,7 +247,6 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
         }
     }
 
-
     @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getSource() == onlineList && e.getClickCount() == 2) {
@@ -265,22 +259,11 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
     }
 
     @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
+    public void mousePressed(MouseEvent e) {}
     @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
+    public void mouseReleased(MouseEvent e) {}
     @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
+    public void mouseEntered(MouseEvent e) {}
     @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
+    public void mouseExited(MouseEvent e) {}
 }

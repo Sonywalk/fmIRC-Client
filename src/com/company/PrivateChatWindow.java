@@ -1,7 +1,6 @@
 package com.company;
 
 import com.company.UI.CustomUI;
-import com.company.UI.Main;
 import com.company.Util.ChatUtils;
 import com.company.Util.WrapEditorKit;
 
@@ -83,7 +82,17 @@ public class PrivateChatWindow implements Runnable, KeyListener {
                 e.printStackTrace();
             }
         });
+    }
 
+    private void sendPrivateMessage() {
+        try {
+            client.write("PRIVMSG " + nickname + " :" + privateChat.getText());
+            privateChat.setText("");
+        } catch (BadLocationException e1) {
+            e1.printStackTrace();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
     }
 
     @Override
@@ -92,26 +101,14 @@ public class PrivateChatWindow implements Runnable, KeyListener {
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
-
-    }
-
+    public void keyTyped(KeyEvent e) {}
     @Override
-    public void keyPressed(KeyEvent e) {
-
-    }
+    public void keyPressed(KeyEvent e) {}
 
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getSource() == privateChat && e.getKeyCode() == KeyEvent.VK_ENTER) {
-            try {
-                client.write("PRIVMSG " + nickname + " :" + privateChat.getText());
-                privateChat.setText("");
-            } catch (BadLocationException e1) {
-                e1.printStackTrace();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+            sendPrivateMessage();
         }
     }
 }

@@ -36,6 +36,7 @@ public class ChatUtils {
 
     //Pass null as backgroundColor or foregroundColor and it will return a default value
     public static void appendToPane(JTextPane tp, String msg, Color foregroundColor, Color backgroundColor) throws BadLocationException {
+
         if (foregroundColor == null) {
             foregroundColor = Color.RED;
         }
@@ -46,7 +47,20 @@ public class ChatUtils {
         SimpleAttributeSet sas = new SimpleAttributeSet();
         StyleConstants.setForeground(sas, foregroundColor);
         StyleConstants.setBackground(sas, backgroundColor);
-        doc.insertString(doc.getLength(), msg + "\n", sas);
+
+        //Some calls to this function may be on EDT already, if not run it on EDT
+        if (SwingUtilities.isEventDispatchThread()) {
+            doc.insertString(doc.getLength(), msg + "\n", sas);
+        }
+        else {
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    doc.insertString(doc.getLength(), msg + "\n", sas);
+                } catch (BadLocationException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 
     public static void addTab(String title, JPanel panel, JTabbedPane tabbedPane) {
@@ -57,5 +71,4 @@ public class ChatUtils {
             tabCount++;
         });
     }
-
 }
