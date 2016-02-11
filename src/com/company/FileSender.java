@@ -7,11 +7,12 @@ import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.List;
 
 /**
  * Created by LanfeaR on 2016-02-11.
  */
-public class FileSender extends SwingWorker<Void, Void> {
+public class FileSender extends SwingWorker<Void, String> {
 
     private final static int PORT = 1338;
     private String filename;
@@ -34,9 +35,9 @@ public class FileSender extends SwingWorker<Void, Void> {
             byte[] buff = new byte[8 * 1024];
             int len;
             while ((len = fin.read(buff)) != -1) {
-                //TODO very warning this is not how it should be done, use progress update, never update Swing from background worker...
                 if (out.getCount() % 1000 == 0 || out.getCount() == size) {
-                    client.setTitle("Uploading: " + ChatUtils.getPercent(out.getCount(), size) + " %" +
+                    //Using publish to make a gui update
+                    publish("Uploading: " + ChatUtils.getPercent(out.getCount(), size) + " %" +
                             ChatUtils.getMegabyteDifference(out.getCount(), size) + ChatUtils.getDownloadRate(startTime, out.getCount()));
                 }
                 out.write(buff, 0, len);
@@ -52,6 +53,13 @@ public class FileSender extends SwingWorker<Void, Void> {
             socket.close();
         }
         return null;
+    }
+
+    @Override
+    protected void process(final List<String> chunks) {
+        for (final String item : chunks) {
+            client.setTitle(item);
+        }
     }
 
     @Override

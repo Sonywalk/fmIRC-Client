@@ -7,11 +7,12 @@ import javax.swing.*;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.List;
 
 /**
  * Created by LanfeaR on 2016-02-11.
  */
-public class FileReceiver extends SwingWorker<Void, Void> {
+public class FileReceiver extends SwingWorker<Void, String> {
     private final static int PORT = 1338;
     private String filename;
     private ChatClient client;
@@ -27,15 +28,15 @@ public class FileReceiver extends SwingWorker<Void, Void> {
     protected Void doInBackground() throws IOException {
         Socket socket = new Socket(client.getAddress(), PORT);
         CountingInputStream in = new CountingInputStream(socket.getInputStream());
-        FileOutputStream fout = new FileOutputStream(System.getProperty("user.home") + "/Desktop/" + filename); //TODO change this to downloads?
+        FileOutputStream fout = new FileOutputStream(System.getProperty("user.home") + "/Desktop/" + filename); //TODO change this to something else?
         try {
             byte[] buff = new byte[8 * 1024];
             int len;
             long startTime = System.nanoTime();
             while ((len = in.read(buff)) != -1) {
-                //TODO very warning this is not how it should be done, use progress update, never update Swing from background worker...
                 if (in.getCount() % 1000 == 0 || in.getCount() == size) {
-                    client.setTitle("Downloading: " + ChatUtils.getPercent(in.getCount(), size) + " %" +
+                    //Using publish to make a gui update
+                    publish("Downloading: " + ChatUtils.getPercent(in.getCount(), size) + " %" +
                             ChatUtils.getMegabyteDifference(in.getCount(), size) + ChatUtils.getDownloadRate(startTime, in.getCount()));
                 }
                 fout.write(buff, 0, len);
@@ -50,6 +51,13 @@ public class FileReceiver extends SwingWorker<Void, Void> {
             socket.close();
         }
         return null;
+    }
+
+    @Override
+    protected void process(final List<String> chunks) {
+        for (final String item : chunks) {
+            client.setTitle(item);
+        }
     }
 
     @Override
