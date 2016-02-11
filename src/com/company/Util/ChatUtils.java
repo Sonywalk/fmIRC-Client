@@ -71,4 +71,16 @@ public class ChatUtils {
             tabCount++;
         });
     }
+
+    public static int getPercent(long a, long b) {
+        return (int)((float)a / (float)b * 100);
+    }
+    public static double byteToMB(double x) {
+        return Math.round((x / (1024 * 1024)) * 10d) / 10d;
+    }
+    public static double getDownloadRate(long startTime, long bytesRead) {
+        double elapsedTime = ((double)System.nanoTime() - (double)startTime)/1000000000;
+        double result = ((double)bytesRead/1024)/elapsedTime;
+        return Math.round(result * 10d)/10d;
+    }
 }

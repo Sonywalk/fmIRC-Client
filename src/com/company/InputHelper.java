@@ -3,6 +3,7 @@ package com.company;
 import com.company.Util.ChatUtils;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -38,6 +39,28 @@ public class InputHelper {
         else if (input.startsWith("QUIT")) {
             quit(input, time);
         }
+        else if (input.startsWith("GET")) {
+            sendFile(input);
+        }
+        else if (input.startsWith("SENDING")) {
+            receiveFile(input);
+        }
+    }
+
+    private void sendFile(String input) throws IOException, BadLocationException {
+        int index = input.indexOf(":");
+        String filename = input.substring(index + 1, input.length());
+        String to = input.substring(0, index).replace("GET", "").trim();
+        File f = new File(filename);
+        String size = Long.toString(f.length());
+        new FileSender(filename, size, client).execute();
+        client.write("SENDING " + to + " :" + filename + " -" + size);
+    }
+
+    private void receiveFile(String input) throws IOException, BadLocationException {
+        String filename = input.substring(input.indexOf(":") + 1, input.indexOf("-")).trim();
+        String size = input.substring(input.indexOf("-")+1, input.length());
+        new FileReceiver(filename, size, client).execute();
     }
 
     //"PRIVMSG from@to :message
