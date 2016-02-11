@@ -13,7 +13,6 @@ import java.net.Socket;
  */
 public class FileSender extends SwingWorker<Void, Void> {
 
-    private final static String ADDR = "127.0.0.1";
     private final static int PORT = 1338;
     private String filename;
     private ChatClient client;
@@ -27,7 +26,7 @@ public class FileSender extends SwingWorker<Void, Void> {
 
     @Override
     protected Void doInBackground() throws IOException {
-        Socket socket = new Socket(ADDR, PORT);
+        Socket socket = new Socket(client.getAddress(), PORT);
         FileInputStream fin = new FileInputStream(filename);
         CountingOutputStream out = new CountingOutputStream(socket.getOutputStream());
         try {

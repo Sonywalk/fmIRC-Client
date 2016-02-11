@@ -25,6 +25,7 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
     private Stack<String> latestMessages;
     private int counter;
     private String myNickname;
+    private String address;
 
     public ChatClient() throws IOException {
         counter = 0;
@@ -54,8 +55,9 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
 
     private void connect() throws BadLocationException, IOException {
         try {
+            this.address = tfIp.getText();
             socket = new Socket();
-            socket.connect(new InetSocketAddress(tfIp.getText(), Integer.parseInt(tfPort.getText())), 2000);
+            socket.connect(new InetSocketAddress(address, Integer.parseInt(tfPort.getText())), 2000);
             out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
             in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
             createReaderThread();
@@ -136,6 +138,9 @@ public class ChatClient extends Main implements ActionListener, KeyListener, Mou
     }
     public void putPrivateChatWindow(String key, PrivateChatWindow value) {
         privateChatWindows.put(key, value);
+    }
+    public String getAddress() {
+        return this.address;
     }
 
     public void updateOnlineList() {

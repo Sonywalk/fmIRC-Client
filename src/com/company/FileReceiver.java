@@ -12,7 +12,6 @@ import java.net.Socket;
  * Created by LanfeaR on 2016-02-11.
  */
 public class FileReceiver extends SwingWorker<Void, Void> {
-    private final static String ADDR = "127.0.0.1";
     private final static int PORT = 1338;
     private String filename;
     private ChatClient client;
@@ -26,7 +25,7 @@ public class FileReceiver extends SwingWorker<Void, Void> {
 
     @Override
     protected Void doInBackground() throws IOException {
-        Socket socket = new Socket(ADDR, PORT);
+        Socket socket = new Socket(client.getAddress(), PORT);
         CountingInputStream in = new CountingInputStream(socket.getInputStream());
         FileOutputStream fout = new FileOutputStream(System.getProperty("user.home") + "/Desktop/" + filename); //TODO change this to downloads?
         try {
