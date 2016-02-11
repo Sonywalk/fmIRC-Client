@@ -38,7 +38,7 @@ public class FileSender extends SwingWorker<Void, String> {
                 if (out.getCount() % 1000 == 0 || out.getCount() == size) {
                     //Using publish to make a gui update
                     publish("Uploading: " + ChatUtils.getPercent(out.getCount(), size) + " %" +
-                            ChatUtils.getMegabyteDifference(out.getCount(), size) + ChatUtils.getDownloadRate(startTime, out.getCount()));
+                            ChatUtils.getMegabyteDifference(out.getCount(), size) + ChatUtils.getDownloadRate(startTime, out.getCount()) + " - [" + filename + "]");
                 }
                 out.write(buff, 0, len);
             }

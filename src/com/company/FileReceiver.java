@@ -37,7 +37,7 @@ public class FileReceiver extends SwingWorker<Void, String> {
                 if (in.getCount() % 1000 == 0 || in.getCount() == size) {
                     //Using publish to make a gui update
                     publish("Downloading: " + ChatUtils.getPercent(in.getCount(), size) + " %" +
-                            ChatUtils.getMegabyteDifference(in.getCount(), size) + ChatUtils.getDownloadRate(startTime, in.getCount()));
+                            ChatUtils.getMegabyteDifference(in.getCount(), size) + ChatUtils.getDownloadRate(startTime, in.getCount()) + " - [" + filename + "]");
                 }
                 fout.write(buff, 0, len);
             }
