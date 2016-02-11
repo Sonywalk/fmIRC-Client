@@ -1,9 +1,9 @@
 package com.company;
 
 import com.company.Util.ChatUtils;
+import com.google.common.io.CountingOutputStream;
 
 import javax.swing.*;
-import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -29,20 +29,18 @@ public class FileSender extends SwingWorker<Void, Void> {
     protected Void doInBackground() throws IOException {
         Socket socket = new Socket(ADDR, PORT);
         FileInputStream fin = new FileInputStream(filename);
-        BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());
+        CountingOutputStream out = new CountingOutputStream(socket.getOutputStream());
         try {
-            int b;
-            int counter = 0;
             long startTime = System.nanoTime();
-            while ((b = fin.read()) != -1) {
+            byte[] buff = new byte[8 * 1024];
+            int len;
+            while ((len = fin.read(buff)) != -1) {
                 //TODO very warning this is not how it should be done, use progress update, never update Swing from background worker...
-                if (counter % 100 == 0 || counter == size) {
-                    client.setTitle("Uploading: " + ChatUtils.getPercent(counter, size) + " %" +
-                            "  (" + ChatUtils.byteToMB((double) counter) + "mb / " + ChatUtils.byteToMB((double) size) + "mb) "
-                            + ChatUtils.getDownloadRate(startTime, counter) + " kb/s");
+                if (out.getCount() % 1000 == 0 || out.getCount() == size) {
+                    client.setTitle("Uploading: " + ChatUtils.getPercent(out.getCount(), size) + " %" +
+                            ChatUtils.getMegabyteDifference(out.getCount(), size) + ChatUtils.getDownloadRate(startTime, out.getCount()));
                 }
-                counter++;
-                out.write(b);
+                out.write(buff, 0, len);
             }
             out.flush();
         }

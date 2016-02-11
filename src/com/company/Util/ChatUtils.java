@@ -8,6 +8,7 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import java.awt.*;
+import java.awt.geom.Arc2D;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -75,12 +76,18 @@ public class ChatUtils {
     public static int getPercent(long a, long b) {
         return (int)((float)a / (float)b * 100);
     }
-    public static double byteToMB(double x) {
-        return Math.round((x / (1024 * 1024)) * 10d) / 10d;
+    public static String getMegabyteDifference(long count, long size) {
+        return " (" + Math.round(((double)count / (1024 * 1024)) * 10d) / 10d + "MB / " + Math.round(((double)size / (1024 * 1024)) * 10d) / 10d + "MB) ";
     }
-    public static double getDownloadRate(long startTime, long bytesRead) {
+    public static String getDownloadRate(long startTime, long bytesRead) {
         double elapsedTime = ((double)System.nanoTime() - (double)startTime)/1000000000;
         double result = ((double)bytesRead/1024)/elapsedTime;
-        return Math.round(result * 10d)/10d;
+        if (result > 1024) {
+            result = result/1024;
+            return Double.toString(Math.round(result * 10d) / 10d) + " MB/s";
+        }
+        else {
+            return Double.toString(Math.round(result * 10d) / 10d) + " KB/s";
+        }
     }
 }

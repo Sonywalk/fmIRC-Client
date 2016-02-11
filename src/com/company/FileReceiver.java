@@ -1,10 +1,9 @@
 package com.company;
 
 import com.company.Util.ChatUtils;
+import com.google.common.io.CountingInputStream;
 
 import javax.swing.*;
-import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -28,21 +27,19 @@ public class FileReceiver extends SwingWorker<Void, Void> {
     @Override
     protected Void doInBackground() throws IOException {
         Socket socket = new Socket(ADDR, PORT);
-        BufferedInputStream in = new BufferedInputStream(socket.getInputStream());
+        CountingInputStream in = new CountingInputStream(socket.getInputStream());
         FileOutputStream fout = new FileOutputStream(System.getProperty("user.home") + "/Desktop/" + filename); //TODO change this to downloads?
         try {
-            int b;
-            int counter = 0;
+            byte[] buff = new byte[8 * 1024];
+            int len;
             long startTime = System.nanoTime();
-            while ((b = in.read()) != -1) {
+            while ((len = in.read(buff)) != -1) {
                 //TODO very warning this is not how it should be done, use progress update, never update Swing from background worker...
-                if (counter % 100 == 0 || counter == size) {
-                    client.setTitle("Downloading: " + ChatUtils.getPercent(counter, size) + " %" +
-                            "  (" + ChatUtils.byteToMB((double) counter) + "mb / " + ChatUtils.byteToMB((double) size) + "mb) "
-                            + ChatUtils.getDownloadRate(startTime, counter) + " kb/s");
+                if (in.getCount() % 1000 == 0 || in.getCount() == size) {
+                    client.setTitle("Downloading: " + ChatUtils.getPercent(in.getCount(), size) + " %" +
+                            ChatUtils.getMegabyteDifference(in.getCount(), size) + ChatUtils.getDownloadRate(startTime, in.getCount()));
                 }
-                counter++;
-                fout.write(b);
+                fout.write(buff, 0, len);
             }
             fout.flush();
         }
