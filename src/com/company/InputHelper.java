@@ -1,9 +1,12 @@
 package com.company;
 
 import com.company.Util.ChatUtils;
+import com.company.Util.Constants;
+
 import javax.swing.text.BadLocationException;
 import java.awt.*;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 
 /**
@@ -45,21 +48,27 @@ public class InputHelper {
         else if (input.startsWith("SENDING")) {
             receiveFile(input);
         }
+        else if (input.startsWith("LIST")) {
+            list(input);
+        }
     }
 
     private void sendFile(String input) throws IOException, BadLocationException {
         int index = input.indexOf(":");
         String filename = input.substring(index + 1, input.length());
         String to = input.substring(0, index).replace("GET", "").trim();
-        File f = new File(filename);
+        File f = new File(Constants.SHARED_PATH + "/" + filename);
+        if (!f.exists()) {
+            return;
+        }
         String size = Long.toString(f.length());
         new FileSender(filename, size, client).execute();
-        client.write("SENDING " + to + " :" + filename + " -" + size);
+        client.write("SENDING " + to + " :" + filename + " /" + size);
     }
 
     private void receiveFile(String input) throws IOException, BadLocationException {
-        String filename = input.substring(input.indexOf(":") + 1, input.indexOf("-")).trim();
-        String size = input.substring(input.indexOf("-")+1, input.length());
+        String filename = input.substring(input.indexOf(":") + 1, input.indexOf("/")).trim();
+        String size = input.substring(input.indexOf("/") + 1, input.length());
         new FileReceiver(filename, size, client).execute();
     }
 
@@ -125,5 +134,22 @@ public class InputHelper {
         String name = input.substring(0, index).replace("MESSAGE", "").trim();
         ChatUtils.appendToPane(client.getMainTextPane(), time + "<" + name + ">: " + message, client.getColorByName(name), null);
         client.createPopupAsync("New Message", message);
+    }
+
+    private void list(String input) throws IOException, BadLocationException {
+        String to = input.replace("LIST", "").trim();
+        File folder = new File(Constants.SHARED_PATH);
+        if (folder == null) {
+            client.write("***** NO LIST *****");
+        }
+        File[] listOfFiles = folder.listFiles();
+        client.write("*********************************************");
+        client.write(client.getNickname() + " LIST\n");
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isFile()) {
+                client.write(listOfFiles[i].getName());
+            }
+        }
+        client.write("*********************************************");
     }
 }

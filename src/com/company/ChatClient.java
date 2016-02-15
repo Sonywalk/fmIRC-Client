@@ -18,7 +18,7 @@ import java.util.List;
 public class ChatClient extends Main implements ActionListener, KeyListener, MouseListener {
 
     private BufferedReader in;
-    private BufferedWriter out;
+    public BufferedWriter out;
     private HashMap<String, Color> onlineNameAndColor;
     private static HashMap<String, PrivateChatWindow> privateChatWindows;
     private Socket socket;

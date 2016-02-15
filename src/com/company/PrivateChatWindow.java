@@ -84,14 +84,13 @@ public class PrivateChatWindow implements Runnable, KeyListener {
         });
     }
 
-    private void sendPrivateMessage() {
-        try {
+    private void sendPrivateMessage() throws IOException, BadLocationException {
+        if (privateChat.getText().equals("/list")) {
+            client.write("LIST " + nickname);
+        }
+        else {
             client.write("PRIVMSG " + nickname + " :" + privateChat.getText());
             privateChat.setText("");
-        } catch (BadLocationException e1) {
-            e1.printStackTrace();
-        } catch (IOException e1) {
-            e1.printStackTrace();
         }
     }
 
@@ -108,7 +107,13 @@ public class PrivateChatWindow implements Runnable, KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getSource() == privateChat && e.getKeyCode() == KeyEvent.VK_ENTER) {
-            sendPrivateMessage();
+            try {
+                sendPrivateMessage();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            } catch (BadLocationException e1) {
+                e1.printStackTrace();
+            }
         }
     }
 }

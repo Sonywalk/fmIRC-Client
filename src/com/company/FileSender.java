@@ -1,11 +1,12 @@
 package com.company;
 
 import com.company.Util.ChatUtils;
-import com.google.common.io.CountingOutputStream;
+import com.company.Util.Constants;
 
 import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class FileSender extends SwingWorker<Void, String> {
     private String filename;
     private ChatClient client;
     private long size;
+    private final static int BUFF_SIZE = 8*1024;
 
     public FileSender(String filename, String size, ChatClient client) {
         this.filename = filename;
@@ -28,17 +30,19 @@ public class FileSender extends SwingWorker<Void, String> {
     @Override
     protected Void doInBackground() throws IOException {
         Socket socket = new Socket(client.getAddress(), PORT);
-        FileInputStream fin = new FileInputStream(filename);
-        CountingOutputStream out = new CountingOutputStream(socket.getOutputStream());
+        FileInputStream fin = new FileInputStream(Constants.SHARED_PATH + "/" + filename);
+        OutputStream out = socket.getOutputStream();
         try {
             long startTime = System.nanoTime();
-            byte[] buff = new byte[8 * 1024];
+            byte[] buff = new byte[BUFF_SIZE];
             int len;
+            long count = 0;
             while ((len = fin.read(buff)) != -1) {
-                if (out.getCount() % 1000 == 0 || out.getCount() == size) {
+                count += len;
+                if (count % (1024*2) == 0 || count == size) {
                     //Using publish to make a gui update
-                    publish("Uploading: " + ChatUtils.getPercent(out.getCount(), size) + " %" +
-                            ChatUtils.getMegabyteDifference(out.getCount(), size) + ChatUtils.getDownloadRate(startTime, out.getCount()) + " - [" + filename + "]");
+                    publish("Uploading: " + ChatUtils.getPercent(count, size) + " %" +
+                            ChatUtils.getMegabyteDifference(count, size) + ChatUtils.getDownloadRate(startTime, count) + " - [" + filename + "]");
                 }
                 out.write(buff, 0, len);
             }
@@ -54,14 +58,12 @@ public class FileSender extends SwingWorker<Void, String> {
         }
         return null;
     }
-
     @Override
     protected void process(final List<String> chunks) {
         for (final String item : chunks) {
             client.setTitle(item);
         }
     }
-
     @Override
     protected void done() {
         client.setTitle("fmIRC+ - " + client.getNickname());

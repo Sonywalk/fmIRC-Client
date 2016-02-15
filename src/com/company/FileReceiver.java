@@ -1,11 +1,13 @@
 package com.company;
 
 import com.company.Util.ChatUtils;
-import com.google.common.io.CountingInputStream;
+import com.company.Util.Constants;
 
 import javax.swing.*;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.util.List;
 
@@ -17,6 +19,7 @@ public class FileReceiver extends SwingWorker<Void, String> {
     private String filename;
     private ChatClient client;
     private long size;
+    private final static int BUFF_SIZE = 8*1024;
 
     public FileReceiver(String filename, String size, ChatClient client) {
         this.filename = filename;
@@ -27,17 +30,25 @@ public class FileReceiver extends SwingWorker<Void, String> {
     @Override
     protected Void doInBackground() throws IOException {
         Socket socket = new Socket(client.getAddress(), PORT);
-        CountingInputStream in = new CountingInputStream(socket.getInputStream());
-        FileOutputStream fout = new FileOutputStream(System.getProperty("user.home") + "/Desktop/" + filename); //TODO change this to something else?
+        InputStream in = socket.getInputStream();
+
+        File downloadDir = new File(Constants.DOWNLOAD_PATH);
+        if (!downloadDir.exists()) {
+            downloadDir.mkdir();
+        }
+        FileOutputStream fout = new FileOutputStream(Constants.DOWNLOAD_PATH + "/" + filename);
+
         try {
-            byte[] buff = new byte[8 * 1024];
+            byte[] buff = new byte[BUFF_SIZE];
             int len;
             long startTime = System.nanoTime();
+            long count = 0;
             while ((len = in.read(buff)) != -1) {
-                if (in.getCount() % 1000 == 0 || in.getCount() == size) {
+                count += len;
+                if (count % (1024*2) == 0 || count == size) {
                     //Using publish to make a gui update
-                    publish("Downloading: " + ChatUtils.getPercent(in.getCount(), size) + " %" +
-                            ChatUtils.getMegabyteDifference(in.getCount(), size) + ChatUtils.getDownloadRate(startTime, in.getCount()) + " - [" + filename + "]");
+                    publish("Downloading: " + ChatUtils.getPercent(count, size) + " %" +
+                            ChatUtils.getMegabyteDifference(count, size) + ChatUtils.getDownloadRate(startTime, count) + " - [" + filename + "]");
                 }
                 fout.write(buff, 0, len);
             }
@@ -52,14 +63,12 @@ public class FileReceiver extends SwingWorker<Void, String> {
         }
         return null;
     }
-
     @Override
     protected void process(final List<String> chunks) {
         for (final String item : chunks) {
             client.setTitle(item);
         }
     }
-
     @Override
     protected void done() {
         client.setTitle("fmIRC+ - " + client.getNickname());
