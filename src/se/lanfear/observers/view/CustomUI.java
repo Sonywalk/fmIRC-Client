@@ -1,4 +1,4 @@
-package com.company.UI;
+package se.lanfear.observers.view;
 
 import javax.swing.*;
 import javax.swing.plaf.ScrollBarUI;

@@ -1,4 +1,4 @@
-package com.company;
+package se.lanfear.observers.view;
 
 import javax.swing.*;
 import java.awt.*;

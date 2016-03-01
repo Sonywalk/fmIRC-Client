@@ -1,11 +1,8 @@
-package com.company.UI;
+package se.lanfear.observers.view;
 
 /**
  * Created by LanfeaR on 2016-02-08.
  */
-
-import com.company.ChatClient;
-import com.company.Util.ChatUtils;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
@@ -20,10 +17,12 @@ import java.awt.event.*;
 
 public class ButtonTabComponent extends JPanel {
     private final JTabbedPane pane;
+    public GUI gui;
 
-    public ButtonTabComponent(final JTabbedPane pane) {
+    public ButtonTabComponent(final JTabbedPane pane, GUI gui) {
         //unset default FlowLayout' gaps
         super(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        this.gui = gui;
         if (pane == null) {
             throw new NullPointerException("TabbedPane is null");
         }
@@ -77,8 +76,7 @@ public class ButtonTabComponent extends JPanel {
             String value = pane.getTitleAt(i);
             if (i != -1) {
                 pane.remove(i);
-                ChatUtils.tabCount--;
-                ChatClient.removeTab(value);
+                gui.removeTab(value);
             }
         }
 

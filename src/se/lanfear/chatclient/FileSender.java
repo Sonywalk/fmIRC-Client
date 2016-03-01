@@ -1,27 +1,28 @@
-package com.company;
+package se.lanfear.chatclient;
 
-import com.company.Util.ChatUtils;
-import com.company.Util.Constants;
+import se.lanfear.chatclient.util.ChatUtils;
+import se.lanfear.chatclient.util.Constants;
 
 import javax.swing.*;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.List;
 
 /**
  * Created by LanfeaR on 2016-02-11.
  */
-public class FileReceiver extends SwingWorker<Void, String> {
+//TODO make this class an observer
+public class FileSender extends SwingWorker<Void, String> {
+
     private final static int PORT = 1338;
     private String filename;
     private ChatClient client;
     private long size;
     private final static int BUFF_SIZE = 8*1024;
 
-    public FileReceiver(String filename, String size, ChatClient client) {
+    public FileSender(String filename, String size, ChatClient client) {
         this.filename = filename;
         this.client = client;
         this.size = Long.parseLong(size);
@@ -30,35 +31,31 @@ public class FileReceiver extends SwingWorker<Void, String> {
     @Override
     protected Void doInBackground() throws IOException {
         Socket socket = new Socket(client.getAddress(), PORT);
-        InputStream in = socket.getInputStream();
-
-        File downloadDir = new File(Constants.DOWNLOAD_PATH);
-        if (!downloadDir.exists()) {
-            downloadDir.mkdir();
-        }
-        FileOutputStream fout = new FileOutputStream(Constants.DOWNLOAD_PATH + "/" + filename);
-
+        FileInputStream fin = new FileInputStream(Constants.SHARED_PATH + "/" + filename);
+        OutputStream out = socket.getOutputStream();
         try {
+            long startTime = System.nanoTime();
             byte[] buff = new byte[BUFF_SIZE];
             int len;
-            long startTime = System.nanoTime();
             long count = 0;
-            while ((len = in.read(buff)) != -1) {
+            while ((len = fin.read(buff)) != -1) {
                 count += len;
                 if (count % (1024*2) == 0 || count == size) {
+                    System.out.println("Sending byte: " + len);
                     //Using publish to make a gui update
-                    publish("Downloading: " + ChatUtils.getPercent(count, size) + " %" +
+                    publish("Uploading: " + ChatUtils.getPercent(count, size) + " %" +
                             ChatUtils.getMegabyteDifference(count, size) + ChatUtils.getDownloadRate(startTime, count) + " - [" + filename + "]");
                 }
-                fout.write(buff, 0, len);
+                out.write(buff, 0, len);
             }
-            fout.flush();
+            out.flush();
         }
         catch (Exception e) {
             e.printStackTrace();
         }
         finally {
-            fout.close();
+            fin.close();
+            out.close();
             socket.close();
         }
         return null;
@@ -66,11 +63,11 @@ public class FileReceiver extends SwingWorker<Void, String> {
     @Override
     protected void process(final List<String> chunks) {
         for (final String item : chunks) {
-            client.setTitle(item);
+            client.setWindowTitle(item);
         }
     }
     @Override
     protected void done() {
-        client.setTitle("fmIRC+ - " + client.getNickname());
+        client.setWindowTitle("fmIRC+ - " + client.getNickname());
     }
 }

@@ -1,4 +1,4 @@
-package com.company.Util;
+package se.lanfear.observers.view;
 
 import javax.swing.text.*;
 
