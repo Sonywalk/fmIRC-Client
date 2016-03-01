@@ -87,13 +87,11 @@ public class InputHelper {
         String[] fromAndTo = input.substring(0, index-1).replace("MSG", "").split("@");
         String from = fromAndTo[0].trim();
         String to = fromAndTo[1].trim();
-
         MessageEntity entity = new MessageEntity(to, from, message);
         client.incomingMessage(entity);
     }
 
     private void nickOk(String time) {
-        client.appendToPane(new AppendEntity(Color.RED, Color.DARK_GRAY, time + "Welcome to fmIRC+!"));
         client.setWindowTitle("fmIRC+ - " + client.getNickname());
     }
 

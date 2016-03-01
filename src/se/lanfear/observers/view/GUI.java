@@ -108,9 +108,8 @@ public class GUI extends JFrame implements Runnable, ChatListener, ActionListene
         //Remove borders
         UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
 
-        //TODO change paths
-        connectImg = ImageIO.read(getClass().getResource("/se/lanfear/resources/connect.png")).getScaledInstance(22, 22, Image.SCALE_SMOOTH);
-        disconnectImg = ImageIO.read(getClass().getResource("/se/lanfear/resources/disconnect.gif")).getScaledInstance(22, 22, Image.SCALE_SMOOTH);
+        connectImg = ImageIO.read(getClass().getResource("/resources/connect.png")).getScaledInstance(22, 22, Image.SCALE_SMOOTH);
+        disconnectImg = ImageIO.read(getClass().getResource("/resources/disconnect.gif")).getScaledInstance(22, 22, Image.SCALE_SMOOTH);
 
         Border blackBorder = BorderFactory.createLineBorder(Color.BLACK);
         Font font = new Font("Arial", Font.BOLD, 12);
@@ -118,7 +117,10 @@ public class GUI extends JFrame implements Runnable, ChatListener, ActionListene
 
         setIconImage(connectImg);
         setTitle("fmIRC+");
-        setMinimumSize(new Dimension(950, 650));
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        setBounds(100, 100, (int) dim.getWidth(), (int) dim.getHeight());
+        setLocationRelativeTo(null);
+        setPreferredSize(dim);
         setVisible(true);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -299,7 +301,6 @@ public class GUI extends JFrame implements Runnable, ChatListener, ActionListene
         catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     private void connect() throws NumberFormatException {
