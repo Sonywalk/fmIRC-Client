@@ -30,14 +30,27 @@ public class FileReceiver extends SwingWorker<Void, String> {
 
     @Override
     protected Void doInBackground() throws IOException {
-        Socket socket = new Socket(client.getAddress(), PORT);
-        InputStream in = socket.getInputStream();
+        Socket socket = null;
+        InputStream in = null;
+        try {
+            System.out.println("Before connect");
+            socket = new Socket(client.getAddress(), PORT);
+            System.out.println("Have socket");
+            in = socket.getInputStream();
+            System.out.println("Have stream");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
         File downloadDir = new File(Constants.DOWNLOAD_PATH);
         if (!downloadDir.exists()) {
             downloadDir.mkdir();
         }
+        System.out.println("Before file out");
         FileOutputStream fout = new FileOutputStream(Constants.DOWNLOAD_PATH + "/" + filename);
+        System.out.println("File output open");
 
         try {
             byte[] buff = new byte[BUFF_SIZE];

@@ -122,7 +122,7 @@ public class InputHelper {
             client.write("LISTBACK " + to + " :*********************************************");
             for (int i = 0; i < listOfFiles.length; i++) {
                 if (listOfFiles[i].isFile()) {
-                    client.write("LISTBACK " + to + " :" + listOfFiles[i].length() + "\t" + listOfFiles[i].getName());
+                    client.write("LISTBACK " + to + " :" + listOfFiles[i].length()/(1024) + "KB\t" + listOfFiles[i].getName());
                 }
             }
             client.write("LISTBACK " + to + " :*********************************************");
