@@ -16,13 +16,15 @@ import java.util.List;
 //TODO make this class an observer
 public class FileSender extends SwingWorker<Void, String> {
 
-    private final static int PORT = 1338;
+    //private final static int PORT = 1338;
+    private int port;
     private String filename;
     private ChatClient client;
     private long size;
     private final static int BUFF_SIZE = 8*1024;
 
-    public FileSender(String filename, String size, ChatClient client) {
+    public FileSender(String filename, String size, ChatClient client, int port) {
+        this.port = port;
         this.filename = filename;
         this.client = client;
         this.size = Long.parseLong(size);
@@ -30,7 +32,7 @@ public class FileSender extends SwingWorker<Void, String> {
 
     @Override
     protected Void doInBackground() throws IOException {
-        Socket socket = new Socket(client.getAddress(), PORT);
+        Socket socket = new Socket(client.getAddress(), port);
         FileInputStream fin = new FileInputStream(Constants.SHARED_PATH + "/" + filename);
         OutputStream out = socket.getOutputStream();
         try {

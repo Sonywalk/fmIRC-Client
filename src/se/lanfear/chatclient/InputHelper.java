@@ -63,22 +63,25 @@ public class InputHelper {
 
     private void sendFile(String input) throws IOException {
         int index = input.indexOf(":");
-        String filename = input.substring(index + 1, input.length());
+        String filename = input.substring(index + 1, input.indexOf("[") - 1);
         String to = input.substring(0, index).replace("GET", "").trim();
+        int port = Integer.parseInt(input.substring(input.indexOf("[") + 1, input.indexOf("]")));
+        System.out.println("port: " + port);
         File f = new File(Constants.SHARED_PATH + "/" + filename);
         if (!f.exists()) {
             client.write("ERROR File does not exist :" + to);
             return;
         }
         String size = Long.toString(f.length());
-        new FileSender(filename, size, client).execute();
-        client.write("SENDING " + to + " :" + filename + " /" + size);
+        new FileSender(filename, size, client, port).execute();
+        client.write("SENDING " + to + " :" + filename + " /" + size + " [" + port + "]");
     }
 
     private void receiveFile(String input) throws IOException {
         String filename = input.substring(input.indexOf(":") + 1, input.indexOf("/")).trim();
-        String size = input.substring(input.indexOf("/") + 1, input.length());
-        new FileReceiver(filename, size, client).execute();
+        String size = input.substring(input.indexOf("/") + 1, input.indexOf("[") - 1);
+        int port = Integer.parseInt(input.substring(input.indexOf("[")+1, input.indexOf("]")));
+        new FileReceiver(filename, size, client, port).execute();
     }
 
     //"MSG from@to :message

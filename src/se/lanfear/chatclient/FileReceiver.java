@@ -16,13 +16,15 @@ import java.util.List;
  */
 //TODO make this class an observer
 public class FileReceiver extends SwingWorker<Void, String> {
-    private final static int PORT = 1338;
+    //private final static int PORT = 1338;
+    private int port;
     private String filename;
     private ChatClient client;
     private long size;
     private final static int BUFF_SIZE = 8*1024;
 
-    public FileReceiver(String filename, String size, ChatClient client) {
+    public FileReceiver(String filename, String size, ChatClient client, int port) {
+        this.port = port;
         this.filename = filename;
         this.client = client;
         this.size = Long.parseLong(size);
@@ -30,27 +32,14 @@ public class FileReceiver extends SwingWorker<Void, String> {
 
     @Override
     protected Void doInBackground() throws IOException {
-        Socket socket = null;
-        InputStream in = null;
-        try {
-            System.out.println("Before connect");
-            socket = new Socket(client.getAddress(), PORT);
-            System.out.println("Have socket");
-            in = socket.getInputStream();
-            System.out.println("Have stream");
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        Socket socket = new Socket(client.getAddress(), port);
+        InputStream in = socket.getInputStream();
 
         File downloadDir = new File(Constants.DOWNLOAD_PATH);
         if (!downloadDir.exists()) {
             downloadDir.mkdir();
         }
-        System.out.println("Before file out");
         FileOutputStream fout = new FileOutputStream(Constants.DOWNLOAD_PATH + "/" + filename);
-        System.out.println("File output open");
 
         try {
             byte[] buff = new byte[BUFF_SIZE];
@@ -68,11 +57,13 @@ public class FileReceiver extends SwingWorker<Void, String> {
                 fout.write(buff, 0, len);
             }
             fout.flush();
+            System.out.println("Flushed stream (Receiver)");
         }
         catch (Exception e) {
             e.printStackTrace();
         }
         finally {
+            System.out.println("Closing socket and streams (Receiver)");
             fout.close();
             socket.close();
         }
