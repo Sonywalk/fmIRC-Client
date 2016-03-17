@@ -67,6 +67,7 @@ public class InputHelper {
         String to = input.substring(0, index).replace("GET", "").trim();
         File f = new File(Constants.SHARED_PATH + "/" + filename);
         if (!f.exists()) {
+            client.write("ERROR File does not exist :" + to);
             return;
         }
         String size = Long.toString(f.length());
