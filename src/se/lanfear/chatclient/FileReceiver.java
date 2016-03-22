@@ -14,9 +14,8 @@ import java.util.List;
 /**
  * Created by LanfeaR on 2016-02-11.
  */
-//TODO make this class an observer
+
 public class FileReceiver extends SwingWorker<Void, String> {
-    //private final static int PORT = 1338;
     private int port;
     private String filename;
     private ChatClient client;
