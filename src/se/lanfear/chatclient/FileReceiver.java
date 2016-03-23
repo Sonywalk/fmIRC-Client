@@ -4,11 +4,13 @@ import se.lanfear.chatclient.util.ChatUtils;
 import se.lanfear.chatclient.util.Constants;
 
 import javax.swing.*;
+import javax.swing.event.SwingPropertyChangeSupport;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 /**
@@ -32,6 +34,7 @@ public class FileReceiver extends SwingWorker<Void, String> {
     @Override
     protected Void doInBackground() throws IOException {
         Socket socket = new Socket(client.getAddress(), port);
+        socket.setSoTimeout(5000);
         InputStream in = socket.getInputStream();
 
         File downloadDir = new File(Constants.DOWNLOAD_PATH);
@@ -55,16 +58,21 @@ public class FileReceiver extends SwingWorker<Void, String> {
                 }
                 fout.write(buff, 0, len);
             }
-            fout.flush();
-            System.out.println("Flushed stream (Receiver)");
+        }
+        catch (SocketTimeoutException e) {
+            e.printStackTrace();
         }
         catch (Exception e) {
             e.printStackTrace();
         }
         finally {
-            System.out.println("Closing socket and streams (Receiver)");
+            fout.flush();
             fout.close();
+            if (in != null) {
+                in.close();
+            }
             socket.close();
+            SwingUtilities.invokeLater(() -> client.setWindowTitle("fmIRC+ - " + client.getNickname()));
         }
         return null;
     }
@@ -73,9 +81,5 @@ public class FileReceiver extends SwingWorker<Void, String> {
         for (final String item : chunks) {
             client.setWindowTitle(item);
         }
-    }
-    @Override
-    protected void done() {
-        client.setWindowTitle("fmIRC+ - " + client.getNickname());
     }
 }

@@ -49,15 +49,18 @@ public class FileSender extends SwingWorker<Void, String> {
                 }
                 out.write(buff, 0, len);
             }
-            out.flush();
         }
         catch (Exception e) {
             e.printStackTrace();
         }
         finally {
+            if (out != null) {
+                out.flush();
+                out.close();
+            }
             fin.close();
-            out.close();
             socket.close();
+            client.setWindowTitle("fmIRC+ - " + client.getNickname());
         }
         return null;
     }
@@ -66,9 +69,5 @@ public class FileSender extends SwingWorker<Void, String> {
         for (final String item : chunks) {
             client.setWindowTitle(item);
         }
-    }
-    @Override
-    protected void done() {
-        client.setWindowTitle("fmIRC+ - " + client.getNickname());
     }
 }
