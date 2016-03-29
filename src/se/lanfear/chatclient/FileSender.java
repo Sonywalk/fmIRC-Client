@@ -42,7 +42,6 @@ public class FileSender extends SwingWorker<Void, String> {
             while ((len = fin.read(buff)) != -1) {
                 count += len;
                 if (count % (1024*2) == 0 || count == size) {
-                    System.out.println("Sending byte: " + len);
                     //Using publish to make a gui update
                     publish("Uploading: " + ChatUtils.getPercent(count, size) + " %" +
                             ChatUtils.getMegabyteDifference(count, size) + ChatUtils.getDownloadRate(startTime, count) + " - [" + filename + "]");
@@ -60,7 +59,7 @@ public class FileSender extends SwingWorker<Void, String> {
             }
             fin.close();
             socket.close();
-            client.setWindowTitle("fmIRC+ - " + client.getNickname());
+            publish("fmIRC+ - " + client.getNickname());
         }
         return null;
     }
