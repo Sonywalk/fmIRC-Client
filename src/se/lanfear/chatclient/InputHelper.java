@@ -22,25 +22,23 @@ public class InputHelper {
     }
 
     public void processInput(String input) throws IOException {
-        System.out.println(input);
-        String time = "[" + ChatUtils.getTime() + "] ";
         if (input.equals("NICK?")) {
             client.write("NICK " + client.getNickname());
         }
         else if (input.equals("NICK OK")) {
-            nickOk(time);
+            nickOk();
         }
         else if (input.equals("NICK TAKEN")) {
-            nickTaken(time);
+            nickTaken();
         }
         else if (input.startsWith("JOINED")) {
-            joined(input, time);
+            joined(input);
         }
         else if (input.startsWith("MSG")) {
             message(input);
         }
         else if (input.startsWith("QUIT")) {
-            quit(input, time);
+            quit(input);
         }
         else if (input.startsWith("GET")) {
             sendFile(input);
@@ -95,20 +93,21 @@ public class InputHelper {
         client.incomingMessage(entity);
     }
 
-    private void nickOk(String time) {
+    private void nickOk() {
         client.setWindowTitle("fmIRC+ - " + client.getNickname());
     }
 
-    private void nickTaken(String time) throws IOException {
+    private void nickTaken() throws IOException {
+        String time = "[" + ChatUtils.getTime() + "] ";
         client.disconnect();
         client.appendToPane(new AppendEntity(Color.DARK_GRAY, Color.RED, time + "Nickname already in use, please pick another one!"));
     }
-    private void quit(String input, String time) {
+    private void quit(String input) {
         String[] parts = input.split(" ");
         client.quit(new QuitEntity(parts[1], parts[2]));
     }
 
-    private void joined(String input, String time) {
+    private void joined(String input) {
         String[] parts = input.split(" "); // input will be JOINED [channel] [nickname]
         client.joined(new JoinedEntity(parts[1], parts[2]));
     }

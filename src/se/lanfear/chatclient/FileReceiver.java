@@ -52,7 +52,6 @@ public class FileReceiver extends SwingWorker<Void, String> {
                 count += len;
                 if (count % (1024*2) == 0 || count == size) {
                     //Using publish to make a gui update
-                    System.out.println("Receiving byte: " + len);
                     publish("Downloading: " + ChatUtils.getPercent(count, size) + " %" +
                             ChatUtils.getMegabyteDifference(count, size) + ChatUtils.getDownloadRate(startTime, count) + " - [" + filename + "]");
                 }
@@ -72,7 +71,7 @@ public class FileReceiver extends SwingWorker<Void, String> {
                 in.close();
             }
             socket.close();
-            SwingUtilities.invokeLater(() -> client.setWindowTitle("fmIRC+ - " + client.getNickname()));
+            publish("fmIRC+ - " + client.getNickname());
         }
         return null;
     }
