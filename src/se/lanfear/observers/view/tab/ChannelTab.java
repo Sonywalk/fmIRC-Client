@@ -26,9 +26,6 @@ public class ChannelTab extends Tab implements MouseListener {
 
     public ChannelTab(String id, ChatClient chatClient, GUI gui) throws IOException {
         super(id, chatClient, gui);
-        onlineNameAndColor = new HashMap<>();
-        model = new DefaultListModel();
-        onlineList = new JList(model);
     }
 
     public void joined(JoinedEntity entity) {
@@ -62,6 +59,9 @@ public class ChannelTab extends Tab implements MouseListener {
 
     @Override
     protected void createTab() {
+        onlineNameAndColor = new HashMap<>();
+        model = new DefaultListModel();
+        onlineList = new JList(model);
         Border blackBorder = BorderFactory.createLineBorder(Color.BLACK);
         Font consoleFont = new Font("Consolas", Font.BOLD, 12);
         Font font = new Font("Arial", Font.BOLD, 12);

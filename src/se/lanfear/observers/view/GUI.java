@@ -44,28 +44,30 @@ public class GUI extends JFrame implements Runnable, ChatListener, ActionListene
     private void incomingMessage(MessageEntity entity) {
         String from = entity.getFrom();
         String to = entity.getTo();
-
-        if (to.startsWith("#")) {
-            if (tabExists(to)) {
-                openTabsMap.get(to).message(entity);
-            }
-        }
-        else if (from.equals("<")) {
-            openTabsMap.get(Constants.CONSOLE_TAB).message(entity);
-        }
-        else {
-            if (from.equals(nickname)) {
+        SwingUtilities.invokeLater(() -> {
+            if (to.startsWith("#")) {
                 if (tabExists(to)) {
                     openTabsMap.get(to).message(entity);
+                }
+            }
+            else if (from.equals("<")) {
+                openTabsMap.get(Constants.CONSOLE_TAB).message(entity);
+            }
+            else {
+                if (from.equals(nickname)) {
+                    if (tabExists(to)) {
+                        openTabsMap.get(to).message(entity);
+                    }
+                    else {
+                        createNewPrivateMessageTab(from).message(entity);
+                    }
                 }
                 else {
                     createNewPrivateMessageTab(from).message(entity);
                 }
             }
-            else {
-                createNewPrivateMessageTab(from).message(entity);
-            }
-        }
+        });
+
     }
 
     /*
@@ -118,9 +120,7 @@ public class GUI extends JFrame implements Runnable, ChatListener, ActionListene
         setIconImage(connectImg);
         setTitle("fmIRC+");
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds(100, 100, (int) dim.getWidth(), (int) dim.getHeight());
-        setLocationRelativeTo(null);
-        setPreferredSize(dim);
+        setPreferredSize(new Dimension((int) dim.getWidth() - 50, (int) dim.getHeight() - 50));
         setVisible(true);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -260,7 +260,7 @@ public class GUI extends JFrame implements Runnable, ChatListener, ActionListene
             try {
                 ChannelTab channelTab = new ChannelTab(entity.getChannel(), chatClient, this);
                 openTabsMap.put(entity.getChannel(), channelTab);
-                channelTab.joined(entity);
+                SwingUtilities.invokeLater(() -> channelTab.joined(entity));
             } catch (IOException e) {
                 e.printStackTrace();
             }
