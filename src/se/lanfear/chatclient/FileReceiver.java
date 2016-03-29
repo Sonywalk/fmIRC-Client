@@ -4,7 +4,6 @@ import se.lanfear.chatclient.util.ChatUtils;
 import se.lanfear.chatclient.util.Constants;
 
 import javax.swing.*;
-import javax.swing.event.SwingPropertyChangeSupport;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -60,6 +59,7 @@ public class FileReceiver extends SwingWorker<Void, String> {
             }
         }
         catch (SocketTimeoutException e) {
+            client.write("ERROR " + client.getNickname() + " :Connection timed out");
             e.printStackTrace();
         }
         catch (Exception e) {

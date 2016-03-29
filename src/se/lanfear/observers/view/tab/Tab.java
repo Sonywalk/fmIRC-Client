@@ -1,12 +1,12 @@
 package se.lanfear.observers.view.tab;
 
 import se.lanfear.chatclient.ChatClient;
+import se.lanfear.chatclient.util.ChatUtils;
+import se.lanfear.entities.AppendEntity;
 import se.lanfear.entities.MessageEntity;
 import se.lanfear.observers.view.CustomUI;
-import se.lanfear.observers.view.WrapEditorKit;
-import se.lanfear.entities.AppendEntity;
-import se.lanfear.chatclient.util.*;
 import se.lanfear.observers.view.GUI;
+import se.lanfear.observers.view.WrapEditorKit;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -14,8 +14,7 @@ import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Stack;
 
 public class Tab implements Runnable, KeyListener {
 
@@ -26,7 +25,7 @@ public class Tab implements Runnable, KeyListener {
     protected Color myColor;
     protected ChatClient chatClient;
     protected int counter;
-    protected ArrayList<String> latestMessages;
+    protected Stack<String> latestMessages;
 
     public Tab(String id, ChatClient chatClient, GUI gui) {
         SwingUtilities.invokeLater(this);
@@ -34,8 +33,8 @@ public class Tab implements Runnable, KeyListener {
         this.chatClient = chatClient;
         myColor = ChatUtils.getRandomColor();
         this.id = id;
-        latestMessages = new ArrayList<>();
-        latestMessages.add("");
+        latestMessages = new Stack<>();
+        latestMessages.push("");
     }
 
     public void message(MessageEntity entity) {
@@ -143,14 +142,14 @@ public class Tab implements Runnable, KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getSource() == chat && e.getKeyCode() == KeyEvent.VK_ENTER) {
-            latestMessages.add(chat.getText());
+            latestMessages.push(chat.getText());
             write();
         }
         if (e.getSource() == chat && e.getKeyCode() == KeyEvent.VK_DOWN) {
-            handleMessageHistory(-1);
+            handleMessageHistory(1);
         }
         if (e.getSource() == chat && e.getKeyCode() == KeyEvent.VK_UP) {
-            handleMessageHistory(1);
+            handleMessageHistory(-1);
         }
     }
 }

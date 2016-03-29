@@ -1,5 +1,6 @@
 package se.lanfear.chatclient;
 
+import se.lanfear.chatclient.util.Constants;
 import se.lanfear.observers.ChatListener;
 import se.lanfear.entities.*;
 import se.lanfear.chatclient.util.ChatUtils;
@@ -19,6 +20,11 @@ public class ChatClient {
     private String address;
 
     public ChatClient() {
+        File sharedDir = new File(Constants.SHARED_PATH);
+
+        if(!sharedDir.exists()){
+            sharedDir.mkdir();
+        }
         listeners = new ArrayList<>();
     }
 
