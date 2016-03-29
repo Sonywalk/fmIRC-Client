@@ -28,13 +28,13 @@ public class Tab implements Runnable, KeyListener {
     protected Stack<String> latestMessages;
 
     public Tab(String id, ChatClient chatClient, GUI gui) {
-        SwingUtilities.invokeLater(this);
         this.gui = gui;
         this.chatClient = chatClient;
         myColor = ChatUtils.getRandomColor();
         this.id = id;
         latestMessages = new Stack<>();
         latestMessages.push("");
+        SwingUtilities.invokeLater(this);
     }
 
     public void message(MessageEntity entity) {

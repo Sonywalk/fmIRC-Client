@@ -31,18 +31,17 @@ public class FileReceiver extends SwingWorker<Void, String> {
         Socket socket = new Socket(client.getAddress(), port);
         socket.setSoTimeout(5000);
         InputStream in = socket.getInputStream();
-
         File downloadDir = new File(Constants.DOWNLOAD_PATH);
         if (!downloadDir.exists()) {
             downloadDir.mkdir();
         }
         FileOutputStream fout = new FileOutputStream(Constants.DOWNLOAD_PATH + "/" + filename);
-
         try {
             byte[] buff = new byte[BUFF_SIZE];
             int len;
             long startTime = System.nanoTime();
             long count = 0;
+
             while ((len = in.read(buff)) != -1) {
                 count += len;
                 if (count % (1024*2) == 0 || count == size) {
