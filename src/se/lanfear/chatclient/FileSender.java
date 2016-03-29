@@ -10,10 +10,6 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.List;
 
-/**
- * Created by LanfeaR on 2016-02-11.
- */
-
 public class FileSender extends SwingWorker<Void, String> {
 
     private int port;

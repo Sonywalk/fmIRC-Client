@@ -1,8 +1,5 @@
 package se.lanfear.chatclient.util;
 
-/**
- * Created by LanfeaR on 2016-02-15.
- */
 public class Constants {
 
     public final static String SHARED_PATH = "shared";

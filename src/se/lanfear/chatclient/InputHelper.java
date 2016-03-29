@@ -11,9 +11,6 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * Created by LogiX on 2016-02-09.
- */
 public class InputHelper {
     private ChatClient client;
 

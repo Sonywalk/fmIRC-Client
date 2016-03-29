@@ -1,9 +1,5 @@
 package se.lanfear.observers.view;
 
-/**
- * Created by LanfeaR on 2016-02-08.
- */
-
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;

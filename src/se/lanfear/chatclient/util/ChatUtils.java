@@ -6,9 +6,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
-/**
- * Created by LogiX on 2016-02-23.
- */
 public class ChatUtils {
 
     public static String getTime() {

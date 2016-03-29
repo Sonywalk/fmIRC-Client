@@ -7,9 +7,6 @@ import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 import java.awt.*;
 
-/**
- * Created by LanfeaR on 2016-02-08.
- */
 public class CustomUI {
 
     public static ScrollBarUI getCustomScrollUI() {

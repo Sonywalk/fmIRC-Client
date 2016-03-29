@@ -13,9 +13,6 @@ import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.io.IOException;
 
-/**
- * Created by LanfeaR on 2016-02-23.
- */
 public class ConsoleTab extends Tab {
 
     public ConsoleTab(String id, ChatClient chatClient, GUI gui) throws IOException {

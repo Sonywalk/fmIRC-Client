@@ -12,10 +12,6 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.List;
 
-/**
- * Created by LanfeaR on 2016-02-11.
- */
-
 public class FileReceiver extends SwingWorker<Void, String> {
     private int port;
     private String filename;
